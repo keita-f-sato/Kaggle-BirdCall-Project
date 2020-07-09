@@ -1,0 +1,5 @@
+src/models/
+.DS_Store
+doc/birdcall/
+dataset/
+src/notebooks/pic_db_mel/
