@@ -1,0 +1,78 @@
+==========================
+Traceback (most recent call last):
+  File "2d-baseline-crnn.py", line 371, in <module>
+    trainer = Trainer(train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model)
+  File "2d-baseline-crnn.py", line 226, in __init__
+    self.model.load_state_dict(checkpoint['model_state_dict'])
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 847, in load_state_dict
+    self.__class__.__name__, "\n\t".join(error_msgs)))
+RuntimeError: Error(s) in loading state_dict for cnn_audio:
+	Missing key(s) in state_dict: "output1.weight", "output1.bias", "output2.weight", "output2.bias". 
+	Unexpected key(s) in state_dict: "output.weight", "output.bias". 
+	size mismatch for conv3.weight: copying a param with shape torch.Size([256, 256, 3, 3]) from checkpoint, the shape in current model is torch.Size([512, 256, 3, 3]).
+	size mismatch for conv3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for lstm.weight_ih_l0: copying a param with shape torch.Size([1024, 12]) from checkpoint, the shape in current model is torch.Size([2048, 12]).
+	size mismatch for lstm.weight_hh_l0: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
+	size mismatch for lstm.bias_ih_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for lstm.bias_hh_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for lstm.weight_ih_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
+	size mismatch for lstm.weight_hh_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
+	size mismatch for lstm.bias_ih_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for lstm.bias_hh_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for bn_lstm.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn_lstm.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn_lstm.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn_lstm.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+Raise Exception: Error(s) in loading state_dict for cnn_audio:
+	Missing key(s) in state_dict: "output1.weight", "output1.bias", "output2.weight", "output2.bias". 
+	Unexpected key(s) in state_dict: "output.weight", "output.bias". 
+	size mismatch for conv3.weight: copying a param with shape torch.Size([256, 256, 3, 3]) from checkpoint, the shape in current model is torch.Size([512, 256, 3, 3]).
+	size mismatch for conv3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for lstm.weight_ih_l0: copying a param with shape torch.Size([1024, 12]) from checkpoint, the shape in current model is torch.Size([2048, 12]).
+	size mismatch for lstm.weight_hh_l0: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
+	size mismatch for lstm.bias_ih_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for lstm.bias_hh_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for lstm.weight_ih_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
+	size mismatch for lstm.weight_hh_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
+	size mismatch for lstm.bias_ih_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for lstm.bias_hh_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for bn_lstm.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn_lstm.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn_lstm.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn_lstm.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+Traceback (most recent call last):
+  File "2d-baseline-crnn.py", line 371, in <module>
+    trainer = Trainer(train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model)
+  File "2d-baseline-crnn.py", line 226, in __init__
+    self.model.load_state_dict(checkpoint['model_state_dict'])
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 847, in load_state_dict
+    self.__class__.__name__, "\n\t".join(error_msgs)))
+RuntimeError: Error(s) in loading state_dict for cnn_audio:
+	Missing key(s) in state_dict: "output1.weight", "output1.bias", "output2.weight", "output2.bias". 
+	Unexpected key(s) in state_dict: "output.weight", "output.bias". 
+	size mismatch for conv3.weight: copying a param with shape torch.Size([256, 256, 3, 3]) from checkpoint, the shape in current model is torch.Size([512, 256, 3, 3]).
+	size mismatch for conv3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn3.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for lstm.weight_ih_l0: copying a param with shape torch.Size([1024, 12]) from checkpoint, the shape in current model is torch.Size([2048, 12]).
+	size mismatch for lstm.weight_hh_l0: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
+	size mismatch for lstm.bias_ih_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for lstm.bias_hh_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for lstm.weight_ih_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
+	size mismatch for lstm.weight_hh_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
+	size mismatch for lstm.bias_ih_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for lstm.bias_hh_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
+	size mismatch for bn_lstm.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn_lstm.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn_lstm.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+	size mismatch for bn_lstm.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
