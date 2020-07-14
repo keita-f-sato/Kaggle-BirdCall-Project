@@ -1,78 +1,317 @@
-==========================
+Raise Exception: [Errno 2] No such file or directory: '../../logs/2e/drop0.4/loss_50.log'
 Traceback (most recent call last):
-  File "2d-baseline-crnn.py", line 371, in <module>
-    trainer = Trainer(train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model)
-  File "2d-baseline-crnn.py", line 226, in __init__
-    self.model.load_state_dict(checkpoint['model_state_dict'])
-  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 847, in load_state_dict
-    self.__class__.__name__, "\n\t".join(error_msgs)))
-RuntimeError: Error(s) in loading state_dict for cnn_audio:
-	Missing key(s) in state_dict: "output1.weight", "output1.bias", "output2.weight", "output2.bias". 
-	Unexpected key(s) in state_dict: "output.weight", "output.bias". 
-	size mismatch for conv3.weight: copying a param with shape torch.Size([256, 256, 3, 3]) from checkpoint, the shape in current model is torch.Size([512, 256, 3, 3]).
-	size mismatch for conv3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for lstm.weight_ih_l0: copying a param with shape torch.Size([1024, 12]) from checkpoint, the shape in current model is torch.Size([2048, 12]).
-	size mismatch for lstm.weight_hh_l0: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
-	size mismatch for lstm.bias_ih_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for lstm.bias_hh_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for lstm.weight_ih_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
-	size mismatch for lstm.weight_hh_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
-	size mismatch for lstm.bias_ih_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for lstm.bias_hh_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for bn_lstm.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn_lstm.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn_lstm.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn_lstm.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-Raise Exception: Error(s) in loading state_dict for cnn_audio:
-	Missing key(s) in state_dict: "output1.weight", "output1.bias", "output2.weight", "output2.bias". 
-	Unexpected key(s) in state_dict: "output.weight", "output.bias". 
-	size mismatch for conv3.weight: copying a param with shape torch.Size([256, 256, 3, 3]) from checkpoint, the shape in current model is torch.Size([512, 256, 3, 3]).
-	size mismatch for conv3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for lstm.weight_ih_l0: copying a param with shape torch.Size([1024, 12]) from checkpoint, the shape in current model is torch.Size([2048, 12]).
-	size mismatch for lstm.weight_hh_l0: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
-	size mismatch for lstm.bias_ih_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for lstm.bias_hh_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for lstm.weight_ih_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
-	size mismatch for lstm.weight_hh_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
-	size mismatch for lstm.bias_ih_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for lstm.bias_hh_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for bn_lstm.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn_lstm.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn_lstm.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn_lstm.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+  File "2e-baseline-cnn-drop0.5.py", line 363, in <module>
+    trainer.export_log(epoch)
+  File "2e-baseline-cnn-drop0.5.py", line 310, in export_log
+    df.to_csv(output_path)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/pandas/core/generic.py", line 3204, in to_csv
+    formatter.save()
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/pandas/io/formats/csvs.py", line 188, in save
+    compression=dict(self.compression_args, method=self.compression),
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/pandas/io/common.py", line 428, in get_handle
+    f = open(path_or_buf, mode, encoding=encoding, newline="")
+FileNotFoundError: [Errno 2] No such file or directory: '../../logs/2e/drop0.4/loss_50.log'
+Raise Exception: [Errno 2] No such file or directory: '../models/2e/drop0.4/cnn_ep50.model'
 Traceback (most recent call last):
-  File "2d-baseline-crnn.py", line 371, in <module>
+  File "2e-baseline-cnn-drop0.5.py", line 350, in <module>
     trainer = Trainer(train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model)
-  File "2d-baseline-crnn.py", line 226, in __init__
-    self.model.load_state_dict(checkpoint['model_state_dict'])
-  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 847, in load_state_dict
-    self.__class__.__name__, "\n\t".join(error_msgs)))
-RuntimeError: Error(s) in loading state_dict for cnn_audio:
-	Missing key(s) in state_dict: "output1.weight", "output1.bias", "output2.weight", "output2.bias". 
-	Unexpected key(s) in state_dict: "output.weight", "output.bias". 
-	size mismatch for conv3.weight: copying a param with shape torch.Size([256, 256, 3, 3]) from checkpoint, the shape in current model is torch.Size([512, 256, 3, 3]).
-	size mismatch for conv3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn3.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for lstm.weight_ih_l0: copying a param with shape torch.Size([1024, 12]) from checkpoint, the shape in current model is torch.Size([2048, 12]).
-	size mismatch for lstm.weight_hh_l0: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
-	size mismatch for lstm.bias_ih_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for lstm.bias_hh_l0: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for lstm.weight_ih_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
-	size mismatch for lstm.weight_hh_l1: copying a param with shape torch.Size([1024, 256]) from checkpoint, the shape in current model is torch.Size([2048, 512]).
-	size mismatch for lstm.bias_ih_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for lstm.bias_hh_l1: copying a param with shape torch.Size([1024]) from checkpoint, the shape in current model is torch.Size([2048]).
-	size mismatch for bn_lstm.weight: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn_lstm.bias: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn_lstm.running_mean: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
-	size mismatch for bn_lstm.running_var: copying a param with shape torch.Size([256]) from checkpoint, the shape in current model is torch.Size([512]).
+  File "2e-baseline-cnn-drop0.5.py", line 202, in __init__
+    checkpoint = torch.load(model)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/serialization.py", line 584, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/serialization.py", line 234, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/serialization.py", line 215, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '../models/2e/drop0.4/cnn_ep50.model'
+Raise Exception: [Errno 2] No such file or directory: '../models/2e/drop0.4/cnn_ep50.model'
+Traceback (most recent call last):
+  File "2e-baseline-cnn-drop0.5.py", line 350, in <module>
+    trainer = Trainer(train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model)
+  File "2e-baseline-cnn-drop0.5.py", line 202, in __init__
+    checkpoint = torch.load(model)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/serialization.py", line 584, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/serialization.py", line 234, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/serialization.py", line 215, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '../models/2e/drop0.4/cnn_ep50.model'
+Raise Exception: shape '[32, 128, 12]' is invalid for input of size 16384
+Traceback (most recent call last):
+  File "<ipython-input-3-7988b23aef46>", line 358, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-3-7988b23aef46>", line 225, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-3-7988b23aef46>", line 249, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-3-7988b23aef46>", line 174, in forward
+    x, _ = self.lstm(x.view(x.size(0), 128, 12), None)
+RuntimeError: shape '[32, 128, 12]' is invalid for input of size 16384
+Raise Exception: shape '[32, 128, 12]' is invalid for input of size 16384
+Traceback (most recent call last):
+  File "<ipython-input-4-7988b23aef46>", line 358, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-4-7988b23aef46>", line 225, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-4-7988b23aef46>", line 249, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-4-7988b23aef46>", line 174, in forward
+    x, _ = self.lstm(x.view(x.size(0), 128, 12), None)
+RuntimeError: shape '[32, 128, 12]' is invalid for input of size 16384
+Raise Exception: shape '[32, 128, 12]' is invalid for input of size 16384
+Traceback (most recent call last):
+  File "<ipython-input-5-b28b29b08094>", line 360, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-5-b28b29b08094>", line 227, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-5-b28b29b08094>", line 251, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-5-b28b29b08094>", line 176, in forward
+    x, _ = self.lstm(x.view(x.size(0), 128, 12), None)
+RuntimeError: shape '[32, 128, 12]' is invalid for input of size 16384
+Raise Exception: index 0 is out of bounds for axis 0 with size 0
+Traceback (most recent call last):
+  File "<ipython-input-1-97636751b810>", line 359, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-1-97636751b810>", line 226, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-1-97636751b810>", line 255, in iteration
+    convert_label(predict_label.cpu().detach().numpy()),
+  File "<ipython-input-1-97636751b810>", line 185, in convert_label
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+  File "<ipython-input-1-97636751b810>", line 185, in <listcomp>
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+IndexError: index 0 is out of bounds for axis 0 with size 0
+Raise Exception: index 0 is out of bounds for axis 0 with size 0
+Traceback (most recent call last):
+  File "<ipython-input-2-87477d00624e>", line 359, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-2-87477d00624e>", line 226, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-2-87477d00624e>", line 255, in iteration
+    convert_label(predict_label.cpu().detach().numpy()),
+  File "<ipython-input-2-87477d00624e>", line 185, in convert_label
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+  File "<ipython-input-2-87477d00624e>", line 185, in <listcomp>
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+IndexError: index 0 is out of bounds for axis 0 with size 0
+Raise Exception: index 0 is out of bounds for axis 0 with size 0
+Traceback (most recent call last):
+  File "<ipython-input-3-4b67766d0aab>", line 361, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-3-4b67766d0aab>", line 226, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-3-4b67766d0aab>", line 257, in iteration
+    convert_label(predict_label.cpu().detach().numpy()),
+  File "<ipython-input-3-4b67766d0aab>", line 185, in convert_label
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+  File "<ipython-input-3-4b67766d0aab>", line 185, in <listcomp>
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+IndexError: index 0 is out of bounds for axis 0 with size 0
+Raise Exception: index 0 is out of bounds for axis 0 with size 0
+Traceback (most recent call last):
+  File "<ipython-input-4-03fd24253045>", line 363, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-4-03fd24253045>", line 226, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-4-03fd24253045>", line 259, in iteration
+    convert_label(predict_label.cpu().detach().numpy()),
+  File "<ipython-input-4-03fd24253045>", line 185, in convert_label
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+  File "<ipython-input-4-03fd24253045>", line 185, in <listcomp>
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+IndexError: index 0 is out of bounds for axis 0 with size 0
+Raise Exception: index 0 is out of bounds for axis 0 with size 0
+Traceback (most recent call last):
+  File "<ipython-input-7-43093a4415b7>", line 362, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-7-43093a4415b7>", line 229, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-7-43093a4415b7>", line 258, in iteration
+    convert_label(predict_label.cpu().detach().numpy()),
+  File "<ipython-input-7-43093a4415b7>", line 188, in convert_label
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+  File "<ipython-input-7-43093a4415b7>", line 188, in <listcomp>
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+IndexError: index 0 is out of bounds for axis 0 with size 0
+Raise Exception: index 0 is out of bounds for axis 0 with size 0
+Traceback (most recent call last):
+  File "<ipython-input-9-3c4915a74298>", line 361, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-9-3c4915a74298>", line 228, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-9-3c4915a74298>", line 257, in iteration
+    convert_label(predict_label.cpu().detach().numpy()),
+  File "<ipython-input-9-3c4915a74298>", line 187, in convert_label
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+  File "<ipython-input-9-3c4915a74298>", line 187, in <listcomp>
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+IndexError: index 0 is out of bounds for axis 0 with size 0
+Raise Exception: "log10_cuda" not implemented for 'Byte'
+Traceback (most recent call last):
+  File "<ipython-input-111-887b42f00efd>", line 391, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-111-887b42f00efd>", line 258, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-111-887b42f00efd>", line 282, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-111-887b42f00efd>", line 187, in forward
+    x = x.log10()
+RuntimeError: "log10_cuda" not implemented for 'Byte'
+Raise Exception: Expected 4-dimensional input for 4-dimensional weight [32, 1, 3, 3], but got 5-dimensional input of size [32, 1, 128, 157, 3] instead
+Traceback (most recent call last):
+  File "<ipython-input-112-2b1b76212072>", line 390, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-112-2b1b76212072>", line 257, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-112-2b1b76212072>", line 281, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-112-2b1b76212072>", line 188, in forward
+    x = self.conv1(x)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 353, in forward
+    return self._conv_forward(input, self.weight)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 350, in _conv_forward
+    self.padding, self.dilation, self.groups)
+RuntimeError: Expected 4-dimensional input for 4-dimensional weight [32, 1, 3, 3], but got 5-dimensional input of size [32, 1, 128, 157, 3] instead
+Raise Exception: Expected 4-dimensional input for 4-dimensional weight [32, 1, 3, 3], but got 5-dimensional input of size [32, 1, 128, 157, 3] instead
+Traceback (most recent call last):
+  File "<ipython-input-113-571593921fb9>", line 392, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-113-571593921fb9>", line 259, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-113-571593921fb9>", line 283, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-113-571593921fb9>", line 190, in forward
+    x = self.conv1(x)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 353, in forward
+    return self._conv_forward(input, self.weight)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 350, in _conv_forward
+    self.padding, self.dilation, self.groups)
+RuntimeError: Expected 4-dimensional input for 4-dimensional weight [32, 1, 3, 3], but got 5-dimensional input of size [32, 1, 128, 157, 3] instead
+Raise Exception: Caught IndexError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/utils/data/_utils/worker.py", line 178, in _worker_loop
+    data = fetcher.fetch(index)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/utils/data/_utils/fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/utils/data/_utils/fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "<ipython-input-120-ab24f1dccc74>", line 103, in __getitem__
+    input_audio_lenght = waveform.size(1)
+IndexError: Dimension out of range (expected to be in range of [-1, 0], but got 1)
+Traceback (most recent call last):
+  File "<ipython-input-120-ab24f1dccc74>", line 392, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-120-ab24f1dccc74>", line 259, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-120-ab24f1dccc74>", line 279, in iteration
+    for i, data in data_iter:
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/tqdm/std.py", line 1107, in __iter__
+    for obj in iterable:
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/utils/data/dataloader.py", line 345, in __next__
+    data = self._next_data()
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/utils/data/dataloader.py", line 856, in _next_data
+    return self._process_data(data)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/utils/data/dataloader.py", line 881, in _process_data
+    data.reraise()
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/_utils.py", line 395, in reraise
+    raise self.exc_type(msg)
+IndexError: Caught IndexError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/utils/data/_utils/worker.py", line 178, in _worker_loop
+    data = fetcher.fetch(index)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/utils/data/_utils/fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/utils/data/_utils/fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "<ipython-input-120-ab24f1dccc74>", line 103, in __getitem__
+    input_audio_lenght = waveform.size(1)
+IndexError: Dimension out of range (expected to be in range of [-1, 0], but got 1)
+
+Raise Exception: Expected 4-dimensional input for 4-dimensional weight [32, 1, 3, 3], but got 5-dimensional input of size [32, 1, 128, 157, 3] instead
+Traceback (most recent call last):
+  File "<ipython-input-122-571593921fb9>", line 392, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-122-571593921fb9>", line 259, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-122-571593921fb9>", line 283, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-122-571593921fb9>", line 190, in forward
+    x = self.conv1(x)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 353, in forward
+    return self._conv_forward(input, self.weight)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 350, in _conv_forward
+    self.padding, self.dilation, self.groups)
+RuntimeError: Expected 4-dimensional input for 4-dimensional weight [32, 1, 3, 3], but got 5-dimensional input of size [32, 1, 128, 157, 3] instead
+Raise Exception: Expected 4-dimensional input for 4-dimensional weight [32, 1, 3, 3], but got 5-dimensional input of size [32, 1, 128, 157, 3] instead
+Traceback (most recent call last):
+  File "<ipython-input-130-8a086f4a7f32>", line 393, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-130-8a086f4a7f32>", line 260, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-130-8a086f4a7f32>", line 284, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-130-8a086f4a7f32>", line 191, in forward
+    x = self.conv1(x)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 353, in forward
+    return self._conv_forward(input, self.weight)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 350, in _conv_forward
+    self.padding, self.dilation, self.groups)
+RuntimeError: Expected 4-dimensional input for 4-dimensional weight [32, 1, 3, 3], but got 5-dimensional input of size [32, 1, 128, 157, 3] instead
+Raise Exception: shape '[32, 157, 1, 128]' is invalid for input of size 1929216
+Traceback (most recent call last):
+  File "<ipython-input-139-e9af5141221a>", line 393, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-139-e9af5141221a>", line 260, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-139-e9af5141221a>", line 284, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-139-e9af5141221a>", line 189, in forward
+    x = x.squeeze().view(x.size(0), x.size(3), x.size(1), x.size(2))
+RuntimeError: shape '[32, 157, 1, 128]' is invalid for input of size 1929216
+Raise Exception: Input type (torch.cuda.ByteTensor) and weight type (torch.cuda.FloatTensor) should be the same
+Traceback (most recent call last):
+  File "<ipython-input-141-cb1b27b0e154>", line 394, in <module>
+    trainer.train(epoch)
+  File "<ipython-input-141-cb1b27b0e154>", line 261, in train
+    self.iteration(epoch, self.train_data)
+  File "<ipython-input-141-cb1b27b0e154>", line 285, in iteration
+    predict_label = self.model(specgram)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "<ipython-input-141-cb1b27b0e154>", line 192, in forward
+    x = self.conv1(x)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 550, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 353, in forward
+    return self._conv_forward(input, self.weight)
+  File "/home/yuigahama/anaconda3/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 350, in _conv_forward
+    self.padding, self.dilation, self.groups)
+RuntimeError: Input type (torch.cuda.ByteTensor) and weight type (torch.cuda.FloatTensor) should be the same

@@ -148,30 +148,41 @@ class cnn_audio(nn.Module):
         super().__init__()
         self.mel = RondomStretchMelSpectrogram(sample_rate, n_fft, top_db, max_perc)
 
-        self.conv1 = nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1))
-        self.bn1 = nn.BatchNorm2d(64)
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=(1, 1))
+        self.bn1 = nn.BatchNorm2d(32)
         self.relu = nn.ReLU(0.1)
-        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=3)
+        self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.dropout = nn.Dropout(0.1)
 
-        self.conv2 = nn.Conv2d(64, 256, kernel_size=(3, 3), stride=(1, 1))
-        self.bn2 = nn.BatchNorm2d(256)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=(1, 1))
+        self.bn2 = nn.BatchNorm2d(64)
         self.relu2 = nn.ReLU(0.1)
-        self.maxpool2 = nn.MaxPool2d(kernel_size=3, stride=3)
+        self.maxpool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.dropout2 = nn.Dropout(0.1)
         
-        self.conv3 = nn.Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1))
-        self.bn3 = nn.BatchNorm2d(512)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=(1, 1))
+        self.bn3 = nn.BatchNorm2d(128)
         self.relu3 = nn.ReLU(0.1)
-        self.maxpool3 = nn.MaxPool2d(kernel_size=3, stride=3)
+        self.maxpool3 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.dropout3 = nn.Dropout(0.1)
         
-        self.lstm = nn.LSTM(12, 512, 2, batch_first=True)
-        self.dropout_lstm = nn.Dropout(0.3)
-        self.bn_lstm = nn.BatchNorm1d(512)
+        self.conv4 = nn.Conv2d(128, 256, kernel_size=3, stride=(1, 1))
+        self.bn4 = nn.BatchNorm2d(256)
+        self.relu4 = nn.ReLU(0.1)
+        self.maxpool4 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.dropout4 = nn.Dropout(0.1)
         
-        self.output1 = nn.Linear(512, 512)
-        self.output2 = nn.Linear(512, output_class)
+        self.conv5 = nn.Conv2d(256, 256, kernel_size=3, stride=(1, 1))
+        self.bn5 = nn.BatchNorm2d(256)
+        self.relu5 = nn.ReLU(0.1)
+        self.maxpool5 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.dropout5 = nn.Dropout(0.1)
+        
+        self.lstm = nn.LSTM(4, 256, 2, batch_first=True)
+        self.dropout_lstm = nn.Dropout(0.3)
+        self.bn_lstm = nn.BatchNorm1d(256)
+        
+        self.output = nn.Linear(256, output_class)
     
     def forward(self, x, train):
         x = self.mel(x, train)
@@ -194,18 +205,29 @@ class cnn_audio(nn.Module):
         x = self.maxpool3(x)
         x = self.dropout3(x)
         
-        x, _ = self.lstm(x.view(x.size(0), 512, 12), None)
+        x = self.conv4(x)
+        x = self.bn4(x)
+        x = self.relu4(x)
+        x = self.maxpool4(x)
+        x = self.dropout4(x)
+        
+        x = self.conv5(x)
+        x = self.bn5(x)
+        x = self.relu5(x)
+        x = self.maxpool5(x)
+        x = self.dropout5(x)
+                
+        x, _ = self.lstm(x.view(x.size(0), 256, 4), None)
         x = self.dropout_lstm(x[:, -1, :])
         x = self.bn_lstm(x)
         
-        x = x.view(-1, 512)
-        x = self.output1(x)
-        x = self.output2(x)
+        x = x.view(-1, 256)
+        x = self.output(x)
         
-        return F.softmax(x, dim=1)
+        return torch.sigmoid(x)
     
 def convert_label(predict):
-    return [np.argwhere(predict[i] == predict[i].max()).item() for i in range(len(predict))]
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
 
 def get_F1_score(y_true, y_pred, average):
     return f1_score(y_true, y_pred, average=average)
@@ -328,9 +350,8 @@ class Trainer():
         output_path = file_path+f"loss_{epoch}.log"
         print("EP:%d logs Saved on:" % epoch, output_path)
         df.to_csv(output_path)
-
         
-# ログの出力名を設定
+        
 logger = logging.getLogger('ErrorLogging')
  
 fh = logging.FileHandler('../../logs/err_log.log')
@@ -339,6 +360,7 @@ logger.addHandler(fh)
 sh = logging.StreamHandler()
 
 try:        
+
     #train_data = pd.read_csv("../../dataset/train.csv")
     #train_data = train_data[train_data["filename"] != 'XC195038.mp3']
     folder = "../../dataset/tensor_audio"
@@ -372,8 +394,9 @@ try:
 
 
     #%%capture output
-    epochs = 1001
+    epochs = 1000
     print("Training Start")
+
     for epoch in range(0, epochs):
         trainer.train(epoch)
         # Model Save
@@ -382,5 +405,4 @@ try:
             trainer.save(epoch)
             trainer.export_log(epoch)
 except Exception as err:
-    logger.exception("="*50)
     logger.exception('Raise Exception: %s', err)

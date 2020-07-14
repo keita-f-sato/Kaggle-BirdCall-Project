@@ -12,12 +12,13 @@ from sklearn.model_selection import train_test_split
 
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.optim import Adam
+from torch.optim import Adam, lr_scheduler
 from torch.distributions import Uniform
 from torch.utils.data import DataLoader, Dataset
 
 from torchaudio.transforms import Spectrogram, MelSpectrogram
 from torchaudio.transforms import TimeStretch, AmplitudeToDB, ComplexNorm 
+
 
 BIRD_CODE = {
     'aldfly': 0, 'ameavo': 1, 'amebit': 2, 'amecro': 3, 'amegfi': 4,
@@ -100,6 +101,8 @@ class LoadTrainDataset(Dataset):
         
         waveform = torch.load(sound_info[0])
         input_audio_lenght = waveform.size(1)
+        target = torch.zeros([264], dtype=torch.float32)
+        target[sound_info[1].item()] = 1
         
         if input_audio_lenght > self.target_lenght:
             dist = torch.randint(0, input_audio_lenght-self.target_lenght, (1,)).item()
@@ -107,34 +110,39 @@ class LoadTrainDataset(Dataset):
         else:
             waveform = torch.cat([waveform, torch.zeros([1, self.target_lenght - input_audio_lenght])], dim=1)
             
-        return waveform, sound_info[1]
-
-class RondomStretchMelSpectrogram(nn.Module):
-    def __init__(self, sample_rate, n_fft, top_db, max_perc):
-        super().__init__()
-        self.time_stretch = TimeStretch(hop_length=None, n_freq=n_fft//2+1)
-        self.stft = Spectrogram(n_fft=n_fft, power=None)
-        self.com_norm = ComplexNorm(power=2.)
-        self.mel_specgram = MelSpectrogram(sample_rate, n_fft=n_fft, f_max=8000)
-        self.AtoDB= AmplitudeToDB(top_db=top_db)
-        self.dist = Uniform(1.-max_perc, 1+max_perc)
+        return waveform, target, sound_info[1]   
     
-    def forward(self, x, train):
-        x = self.stft(x)
-        if train:
-            x = self.time_stretch(x, self.dist.sample().item())
-        x = self.com_norm(x)
-        x = self.mel_specgram.mel_scale(x)
-        x = self.AtoDB(x)
-        
-        size = torch.tensor(x.size())
-        
-        if size[3] > 157:
-            x = x[:,:,:,0:157]
-        else:
-            x = torch.cat([x, torch.cuda.FloatTensor(size[0], size[1], size[2], 157 - size[3]).fill_(0)], dim=3)
-        
-        return x
+def mono_to_color(X,
+                  mean=None,
+                  std=None,
+                  norm_max=None,
+                  norm_min=None,
+                  eps=1e-6):
+    """
+    Code from https://www.kaggle.com/daisukelab/creating-fat2019-preprocessed-data
+    """
+    # Stack X as [X,X,X]
+    X = torch.stack([X, X, X], dim=-1)
+
+    # Standardize
+    mean = mean or X.mean()
+    X = X - mean
+    std = std or X.std()
+    Xstd = X / (std + eps)
+    _min, _max = Xstd.min(), Xstd.max()
+    norm_max = norm_max or _max
+    norm_min = norm_min or _min
+    if (_max - _min) > eps:
+        # Normalize to [0, 255]
+        V = Xstd
+        V[V < norm_min] = norm_min
+        V[V > norm_max] = norm_max
+        V = 255 * (V - norm_min) / (norm_max - norm_min)
+        V = V
+    else:
+        # Just zero
+        V = torch.zeros_like(Xstd)
+    return V.type(torch.uint8) 
 
 class cnn_audio(nn.Module):
     def __init__(self, 
@@ -142,38 +150,43 @@ class cnn_audio(nn.Module):
                  d_size=256,
                  sample_rate=32000, 
                  n_fft=2**11, 
-                 top_db=80,
-                 max_perc=0.4):
+                 top_db=80):
         
         super().__init__()
-        self.mel = RondomStretchMelSpectrogram(sample_rate, n_fft, top_db, max_perc)
+        self.mel = MelSpectrogram(sample_rate, n_fft=n_fft)
+        self.norm_db = AmplitudeToDB(top_db=top_db)
 
-        self.conv1 = nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1))
-        self.bn1 = nn.BatchNorm2d(64)
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=(3, 3), stride=(1, 1))
+        self.bn1 = nn.BatchNorm2d(32)
         self.relu = nn.ReLU(0.1)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=3)
         self.dropout = nn.Dropout(0.1)
 
-        self.conv2 = nn.Conv2d(64, 256, kernel_size=(3, 3), stride=(1, 1))
-        self.bn2 = nn.BatchNorm2d(256)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=(3, 3), stride=(1, 1))
+        self.bn2 = nn.BatchNorm2d(64)
         self.relu2 = nn.ReLU(0.1)
         self.maxpool2 = nn.MaxPool2d(kernel_size=3, stride=3)
         self.dropout2 = nn.Dropout(0.1)
         
-        self.conv3 = nn.Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
-        self.bn3 = nn.BatchNorm2d(256)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
+        self.bn3 = nn.BatchNorm2d(128)
         self.relu3 = nn.ReLU(0.1)
         self.maxpool3 = nn.MaxPool2d(kernel_size=3, stride=3)
         self.dropout3 = nn.Dropout(0.1)
         
-        self.lstm = nn.LSTM(12, 256, 2, batch_first=True)
+        self.lstm = nn.LSTM(12, 128, 2, batch_first=True)
         self.dropout_lstm = nn.Dropout(0.3)
-        self.bn_lstm = nn.BatchNorm1d(256)
+        self.bn_lstm = nn.BatchNorm1d(128)
         
-        self.output = nn.Linear(256, output_class)
+        self.output = nn.Linear(128, output_class)
     
-    def forward(self, x, train):
-        x = self.mel(x, train)
+    def forward(self, x):
+        x = self.mel(x)
+        x = self.norm_db(x)
+        x = mono_to_color(x)
+        x_size = x.size()
+        x= x.squeeze()
+        x = x.view(x.size(0), x.size(3), x.size(1), x.size(2)).float()
         
         x = self.conv1(x)
         x = self.bn1(x)
@@ -193,21 +206,21 @@ class cnn_audio(nn.Module):
         x = self.maxpool3(x)
         x = self.dropout3(x)
         
-        x, _ = self.lstm(x.view(x.size(0), 256, 12), None)
+        x, _ = self.lstm(x.view(x.size(0), 128, 12), None)
         x = self.dropout_lstm(x[:, -1, :])
         x = self.bn_lstm(x)
         
-        x = x.view(-1, 256)
+        x = x.view(-1, 128)
         x = self.output(x)
         
-        return torch.sigmoid(x)
+        return x
     
 def convert_label(predict):
     return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
 
 def get_F1_score(y_true, y_pred, average):
     return f1_score(y_true, y_pred, average=average)
-
+ 
 class Trainer():
     def __init__(self, train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model=None):
         
@@ -217,14 +230,15 @@ class Trainer():
         
         self.model = cnn_audio().to(self.device)
         self.optim = Adam(self.model.parameters(), lr=lr, betas=betas, weight_decay=weight_decay)
-        self.loss = 0
+        self.scheduler = lr_scheduler.CosineAnnealingLR(self.optim, 5)
+        self.criterion = nn.BCEWithLogitsLoss()
         
         if model != None:            
             checkpoint = torch.load(model)
             self.model.load_state_dict(checkpoint['model_state_dict'])
             self.optim.load_state_dict(checkpoint['optimizer_state_dict'])
             self.epoch = checkpoint['epoch']
-            self.loss = checkpoint['loss']
+            self.criterion = checkpoint['loss']
 
 
         if torch.cuda.device_count() > 1:
@@ -265,24 +279,27 @@ class Trainer():
 
         for i, data in data_iter:
             specgram = data[0].to(self.device)
-            label = data[1].to(self.device)
-            predict_label = self.model(specgram, train)
-
+            label = data[2].to(self.device)
+            one_hot_label = data[1].to(self.device)
+            predict_label = self.model(specgram)
+            
             # 
             predict_f1_score = get_F1_score(
                 label.cpu().detach().numpy(),
                 convert_label(predict_label.cpu().detach().numpy()),
                 average='micro'
             )
-            self.loss = F.cross_entropy(predict_label, label)
+            
+            loss = self.criterion(predict_label, one_hot_label)
 
             # 
             if train:
                 self.optim.zero_grad()
-                self.loss.backward()
+                loss.backward()
                 self.optim.step()
+                self.scheduler.step()
 
-            loss_store += self.loss.item()
+            loss_store += loss.item()
             f1_score_store += predict_f1_score
             self.avg_loss = loss_store / (i + 1)
             self.avg_f1_score = f1_score_store / (i + 1)
@@ -291,7 +308,7 @@ class Trainer():
                 "epoch": epoch,
                 "iter": i,
                 "avg_loss": round(self.avg_loss, 5),
-                "loss": round(self.loss.item(), 5),
+                "loss": round(loss.item(), 5),
                 "avg_f1_score": round(self.avg_f1_score, 5)
             }
 
@@ -300,7 +317,7 @@ class Trainer():
         self.train_f1_score.append(self.avg_f1_score) if train else self.test_f1_score.append(self.avg_f1_score)
         
     
-    def save(self, epoch, file_path="../models/"):
+    def save(self, epoch, file_path="../models/2g/"):
         """
         """
         output_path = file_path + f"crnn_ep{epoch}.model"
@@ -309,14 +326,14 @@ class Trainer():
             'epoch': epoch,
             'model_state_dict': self.model.cpu().state_dict(),
             'optimizer_state_dict': self.optim.state_dict(),
-            'loss': self.loss
+            'criterion': self.criterion
             },
             output_path)
         self.model.to(self.device)
         print("EP:%d Model Saved on:" % epoch, output_path)
         return output_path
     
-    def export_log(self, epoch, file_path="../../logs/"):
+    def export_log(self, epoch, file_path="../../logs/2g/"):
         df = pd.DataFrame({
             "train_loss": self.train_loss, 
             "test_loss": self.test_loss, 
@@ -327,10 +344,9 @@ class Trainer():
         print("EP:%d logs Saved on:" % epoch, output_path)
         df.to_csv(output_path)
         
-        
 logger = logging.getLogger('ErrorLogging')
  
-fh = logging.FileHandler('../../logs/err_log.log')
+fh = logging.FileHandler('../../logs/err_2g_log.log')
 logger.addHandler(fh)
  
 sh = logging.StreamHandler()
@@ -350,7 +366,7 @@ try:
     test_dataset = LoadTrainDataset(test_data, folder)
 
     batch_size = 32
-    num_workers=5
+    num_workers= 2
 
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, num_workers=num_workers)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)

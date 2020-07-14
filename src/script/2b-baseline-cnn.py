@@ -1,9 +1,13 @@
+import pickle
+import logging
+
 import torch
 import torchaudio
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
 import torch.nn as nn
@@ -80,18 +84,13 @@ class LoadTrainDataset(Dataset):
                  df, 
                  sound_dir, 
                  audio_sec=5,
-                 sample_rate=32000, 
-                 n_fft=2**11, 
-                 top_db=80
+                 sample_rate=32000
                 ):
         
         self.train_df = df
         self.sound_dir = sound_dir
         self.audio_sec = audio_sec
         self.sample_rate = sample_rate
-        self.mel = MelSpectrogram(sample_rate, n_fft=n_fft)
-        self.norm_db = AmplitudeToDB(top_db=top_db)
-        self.time_strech = TimeStretch()
         self.target_lenght = sample_rate * audio_sec
     
     def __len__(self):
@@ -99,10 +98,9 @@ class LoadTrainDataset(Dataset):
     
     def __getitem__(self, ix):
         sound_info = self.train_df[ix]
-        bird_class = torch.tensor(BIRD_CODE[sound_info[1]])
         
-        waveform, _ = torchaudio.load(sound_info[0], normalization=True)
-        input_audio_lenght = waveform.size()[1]
+        waveform = torch.load(sound_info[0])
+        input_audio_lenght = waveform.size(1)
         
         if input_audio_lenght > self.target_lenght:
             dist = torch.randint(0, input_audio_lenght-self.target_lenght, (1,)).item()
@@ -110,7 +108,7 @@ class LoadTrainDataset(Dataset):
         else:
             waveform = torch.cat([waveform, torch.zeros([1, self.target_lenght - input_audio_lenght])], dim=1)
             
-        return waveform, bird_class
+        return waveform, sound_info[1]
         
         
         
@@ -126,20 +124,20 @@ class cnn_audio(nn.Module):
         self.mel = MelSpectrogram(sample_rate, n_fft=n_fft)
         self.norm_db = AmplitudeToDB(top_db=top_db)
 
-        self.conv1 = nn.Conv2d(1, 64, kernel_size=(3, 3), stride=(1, 1))
-        self.bn1 = nn.BatchNorm2d(64)
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=(3, 3), stride=(1, 1))
+        self.bn1 = nn.BatchNorm2d(32)
         self.relu = nn.ReLU(0.1)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=3)
         self.dropout = nn.Dropout(0.1)
 
-        self.conv2 = nn.Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
-        self.bn2 = nn.BatchNorm2d(128)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=(3, 3), stride=(1, 1))
+        self.bn2 = nn.BatchNorm2d(64)
         self.relu2 = nn.ReLU(0.1)
         self.maxpool2 = nn.MaxPool2d(kernel_size=3, stride=3)
         self.dropout2 = nn.Dropout(0.1)
         
-        self.conv3 = nn.Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1))
-        self.bn3 = nn.BatchNorm2d(256)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))
+        self.bn3 = nn.BatchNorm2d(128)
         self.relu3 = nn.ReLU(0.1)
         self.maxpool3 = nn.MaxPool2d(kernel_size=3, stride=3)
         self.dropout3 = nn.Dropout(0.1)
@@ -172,7 +170,7 @@ class cnn_audio(nn.Module):
         x = self.maxpool3(x)
         x = self.dropout3(x)
         
-        x, _ = self.lstm(x.view(x.size(0), 256, 12), None)
+        x, _ = self.lstm(x.view(x.size(0), 128, 12), None)
         x = self.dropout_lstm(x[:, -1, :])
         x = self.bn_lstm(x)
         
@@ -180,7 +178,12 @@ class cnn_audio(nn.Module):
         x = self.output(x)
         
         return F.softmax(x, dim=1)
- 
+    
+def convert_label(predict):
+    return [np.argwhere(predict[i] == predict[i].max())[0].item() for i in range(len(predict))]
+
+def get_F1_score(y_true, y_pred, average):
+    return f1_score(y_true, y_pred, average=average)
  
 class Trainer():
     def __init__(self, train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model=None):
@@ -211,8 +214,10 @@ class Trainer():
         self.log_freq = log_freq
         print("Total Parameters:", sum([p.nelement() for p in self.model.parameters()]))
         
-        self.train_lossses = []
-        self.train_accs = []
+        self.test_loss = []
+        self.train_loss = []
+        self.train_f1_score = []
+        self.test_f1_score = []
     
     def train(self, epoch):
         self.iteration(epoch, self.train_data)
@@ -231,7 +236,8 @@ class Trainer():
         data_iter = tqdm(enumerate(data_loader), desc="EP_%s:%d" % (str_code, epoch), total=len(data_loader), bar_format="{l_bar}{r_bar}")
         
         total_element = 0
-        avg_loss = 0.0
+        loss_store = 0.0
+        f1_score_store = 0.0
         total_correct = 0
 
         for i, data in data_iter:
@@ -240,6 +246,11 @@ class Trainer():
             predict_label = self.model(specgram)
 
             # 
+            predict_f1_score = get_F1_score(
+                label.cpu().detach().numpy(),
+                convert_label(predict_label.cpu().detach().numpy()),
+                average='micro'
+            )
             self.loss = F.cross_entropy(predict_label, label)
 
             # 
@@ -248,19 +259,23 @@ class Trainer():
                 self.loss.backward()
                 self.optim.step()
 
-            avg_loss += self.loss.item()
-            self.avg_loss = avg_loss / (i + 1)
+            loss_store += self.loss.item()
+            f1_score_store += predict_f1_score
+            self.avg_loss = loss_store / (i + 1)
+            self.avg_f1_score = f1_score_store / (i + 1)
         
             post_fix = {
                 "epoch": epoch,
                 "iter": i,
-                "avg_loss": avg_loss / (i + 1),
-                "loss": self.loss.item()
+                "avg_loss": round(self.avg_loss, 5),
+                "loss": round(self.loss.item(), 5),
+                "avg_f1_score": round(self.avg_f1_score, 5)
             }
 
         data_iter.write(str(post_fix))
-            
-            
+        self.train_loss.append(self.avg_loss) if train else self.test_loss.append(self.avg_loss)
+        self.train_f1_score.append(self.avg_f1_score) if train else self.test_f1_score.append(self.avg_f1_score)
+        
     
     def save(self, epoch, file_path="../models/"):
         """
@@ -277,47 +292,69 @@ class Trainer():
         self.model.to(self.device)
         print("EP:%d Model Saved on:" % epoch, output_path)
         return output_path
+    
+    def export_log(self, epoch, file_path="../../logs/"):
+        df = pd.DataFrame({
+            "train_loss": self.train_loss, 
+            "test_loss": self.test_loss, 
+            "train_F1_score": self.train_f1_score,
+            "test_F1_score": self.test_f1_score
+        })
+        output_path = file_path+f"loss_{epoch}.log"
+        print("EP:%d logs Saved on:" % epoch, output_path)
+        df.to_csv(output_path)
         
-train_data = pd.read_csv("../../dataset/train.csv")
-train_data = train_data[train_data["filename"] != 'XC195038.mp3']
-folder = "/media/yuigahama/ssd/datasets/birdcall/train_resampled"
+logger = logging.getLogger('ErrorLogging')
+ 
+fh = logging.FileHandler('../../logs/err_log.log')
+logger.addHandler(fh)
+ 
+sh = logging.StreamHandler()
 
-train_data = [(
-    "/".join([folder, train_data.iloc[d, :]["ebird_code"], train_data.iloc[d, :]["filename"].replace('.mp3', '.wav')]),
-    train_data.iloc[d, :]["ebird_code"]) for d in range(len(train_data))]
-    
-    
-train_data, test_data = train_test_split(train_data, test_size=0.2, random_state = 2)
+try:        
 
-train_dataset = LoadTrainDataset(train_data, folder)
-test_dataset = LoadTrainDataset(test_data, folder)
+    #train_data = pd.read_csv("../../dataset/train.csv")
+    #train_data = train_data[train_data["filename"] != 'XC195038.mp3']
+    folder = "../../dataset/tensor_audio"
 
-batch_size = 32
+    with open('../../dataset/train_data.pickle', 'rb') as f:
+        train_data = pickle.load(f)
 
-train_dataloader = DataLoader(train_dataset, batch_size=batch_size, num_workers=6)
-test_dataloader = DataLoader(test_dataset, batch_size=batch_size, num_workers=6)
+    train_data, test_data = train_test_split(train_data, test_size=0.2, random_state = 2)
 
-lr=1e-3
-weight_decay=0.00
-adam_beta1=0.5
-adam_beta2=0.99
-betas = (adam_beta1, adam_beta2)
+    train_dataset = LoadTrainDataset(train_data, folder)
+    test_dataset = LoadTrainDataset(test_data, folder)
 
-log_freq=100
-with_cuda=True
+    batch_size = 32
+    num_workers=3
 
-model = "../models/crnn_ep50.model"
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, num_workers=num_workers)
+    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
 
-trainer = Trainer(train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model)
+    lr=1e-3
+    weight_decay=0.00
+    adam_beta1=0.5
+    adam_beta2=0.99
+    betas = (adam_beta1, adam_beta2)
+
+    log_freq=100
+    with_cuda=True
+
+    model = None
+
+    trainer = Trainer(train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model)
 
 
-#%%capture output
-epochs = 400
-print("Training Start")
-for epoch in range(epochs):
-    trainer.train(epoch)
-    # Model Save
-    trainer.test(epoch)
-    if epoch % 50 == 0 and epoch != 0:
-        trainer.save(epoch)
-trainer.save(epoch)
+    #%%capture output
+    epochs = 1000
+    print("Training Start")
+
+    for epoch in range(0, epochs):
+        trainer.train(epoch)
+        # Model Save
+        trainer.test(epoch)
+        if epoch % 50 == 0 and epoch != 0:
+            trainer.save(epoch)
+            trainer.export_log(epoch)
+except Exception as err:
+    logger.exception('Raise Exception: %s', err)
