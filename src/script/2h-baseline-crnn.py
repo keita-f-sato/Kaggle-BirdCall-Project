@@ -230,7 +230,7 @@ class Trainer():
             self.model.load_state_dict(checkpoint['model_state_dict'])
             self.optim.load_state_dict(checkpoint['optimizer_state_dict'])
             self.epoch = checkpoint['epoch']
-            self.criterion = checkpoint['loss']
+            self.criterion = checkpoint['criterion']
 
 
         if torch.cuda.device_count() > 1:
@@ -372,7 +372,7 @@ try:
     log_freq=100
     with_cuda=True
 
-    model = None
+    model = "../models/2h/crnn_ep50.model"
 
     trainer = Trainer(train_dataloader, test_dataloader, lr, betas, weight_decay, log_freq, with_cuda, model)
 
